@@ -1,0 +1,84 @@
+{
+      "orderid":"260331006934001",
+      "searchWorkOrderListEs":[
+          {"key":"contactName","value":"张三33","path":"data","info":"联系人姓名"},                                 
+          {"key":"contactPhone","value":"11111111111","path":"data","info":"联系人手机号"},
+          {"key":"createdDate","value":"2023-08-11 10:00:00","path":"data","info":"创建时间"},
+          {"key":"appointBeginTime","value":"2023-08-11 10:00:00","path":"data","info":"预约开始时间"},
+          {"key":"appointEndTime","value":"2023-08-12 10:00:00","path":"data","info":"预约结束时间"},      
+          {"key":"workOrderCompleteTime","value":"2023-09-13 10:00:00","path":"data","info":"完工时间"},
+          {"key":"lastEvaluationTime","value":"2023-09-14 10:00:00","path":"data","info":"评价时间"}
+      ],
+      "searchWorkOrderDetail":[
+          {"key":"evaluationTime", "value": "2023-08-13 13:13:13","path":"data.workOrderEvaluationRespList","info":"评价时间"},
+          {"key":"appointBeginTime", "value": "2023-08-15 15:15:15","path":"data.workOrderResp","info":"预约开始时间"},
+          {"key":"appointEndTime", "value": "2023-08-15 16:16:16","path":"data.workOrderResp","info":"结束预约时间"},
+          {"key":"expectDoorToDoorBeginTime", "value": "2023-08-15 17:17:17","path":"data.workOrderResp","info":"期望上门开始时间"},
+          {"key":"expectDoorToDoorEndTime", "value": "2023-08-15 18:18:18","path":"data.workOrderResp","info":"期望上门结束时间"},
+          {"key":"lastModifiedDate", "value": "2023-01-01 00:00:00","path":"data.workOrderFeedbackRespList[0]","info":"操作记录1"},
+          {"key":"lastModifiedDate", "value": "2023-01-01 00:00:01","path":"data.workOrderFeedbackRespList[1]","info":"操作记录1"},
+          {"key":"lastModifiedDate", "value": "2023-01-01 00:00:02","path":"data.workOrderFeedbackRespList[2]","info":"操作记录1"},
+          {"key":"lastModifiedDate", "value": "2023-01-01 00:00:03","path":"data.workOrderFeedbackRespList[3]","info":"操作记录1"},
+          {"key":"lastModifiedDate", "value": "2023-01-01 00:00:04","path":"data.workOrderFeedbackRespList[4]","info":"操作记录1"},
+          {"key":"lastModifiedDate", "value": "2023-01-01 00:00:05","path":"data.workOrderFeedbackRespList[5]","info":"操作记录1"},
+          {"key":"lastModifiedDate", "value": "2023-01-01 00:00:06","path":"data.workOrderFeedbackRespList[6]","info":"操作记录1"},  
+          {"key":"lastModifiedDate", "value": "2023-01-01 00:00:07","path":"data.workOrderFeedbackRespList[7]","info":"操作记录1"},
+          {"key":"lastModifiedDate", "value": "2023-01-01 00:00:08","path":"data.workOrderFeedbackRespList[8]","info":"操作记录1"},
+          {"key":"lastModifiedDate", "value": "2023-01-01 00:00:09","path":"data.workOrderFeedbackRespList[9]","info":"操作记录1"},
+          {"key":"lastModifiedDate", "value": "2023-01-01 00:00:10","path":"data.workOrderFeedbackRespList[10]","info":"操作记录1"},
+          {"key":"lastModifiedDate", "value": "2023-01-01 00:00:11","path":"data.workOrderFeedbackRespList[11]","info":"操作记录1"},
+          {"key":"lastModifiedDate", "value": "2023-01-01 00:00:12","path":"data.workOrderFeedbackRespList[12]","info":"操作记录1"},
+          {"key":"lastModifiedDate", "value": "2023-01-01 00:00:13","path":"data.workOrderFeedbackRespList[13]","info":"操作记录1"},
+          {"key":"lastModifiedDate", "value": "2023-01-01 00:00:14","path":"data.workOrderFeedbackRespList[14]","info":"操作记录1"},
+          {"key":"lastModifiedDate", "value": "2023-01-01 00:00:15","path":"data.workOrderFeedbackRespList[15]","info":"操作记录1"},
+          {"key":"content", "value": "按照用户期望上门时间自动预约，预约时间：2022-03-31 22:00:00 2022-03-31 12:00:00","path":"data.workOrderFeedbackRespList[12]","info":"操作记录1"},
+          {"key":"content", "value": "本次出库：2套，总出库：2套，出库单号：1488517297820229632，出库时间:2023-03-31 12:36:19【操作时间：2023-03-31 12:36:19】","path":"data.workOrderFeedbackRespList[11]","info":"操作记录1"},
+          {"key":"deliveryTime", "value": "2022-03-31 12:12:12","path":"data.workOrderResp","info":"出库时间"},
+          {"key":"signInLocation", "value": "四川省成都市简阳市广场路64号2024-03-31 13:338:38","path":"data.workOrderResp","info":"签到定位"}
+      ],
+      "getWorkOrderDetailList":[
+          {"key":"buyTime", "value": "2023-03-22 10:10:10","path":"data.workOrderDetailProductInfoVOList[0]","info":"购买时间"},
+          {"key":"buyTime", "value": "2023-04-23 12:12:12","path":"data.workOrderDetailProductInfoVOList[1]","info":"购买时间"}
+      ],
+      "searchWorkOrderNodeResp":[
+          {"key":"createdDate", "value": "2023-08-19 10:10:10","path":"data.completeFeedbackList[0]","info":"网点完工时间"},                      
+          {"key":"createdDate", "value": "2023-08-19 10:10:10","path":"data.completeFeedbackList[1]","info":"网点完工时间"},                      
+          {"key":"createdDate", "value": "2023-08-19 10:10:10","path":"data.completeFeedbackList[2]","info":"网点完工时间"},                      
+          {"key":"createdDate", "value": "2023-08-19 10:10:10","path":"data.completeFeedbackList[3]","info":"网点完工时间"},                      
+          
+          {"key":"createdDate", "value": "2023-08-17 10:11:11","path":"data.createdFeedbackList[0]","info":"创建时间"},
+          
+          {"key":"createdDate", "value": "2023-08-15 10:11:11","path":"data.inServiceFeedbackList[0]","info":"服务中时间"},
+          {"key":"createdDate", "value": "2023-08-15 10:11:11","path":"data.inServiceFeedbackList[1]","info":"服务中时间"},
+          {"key":"createdDate", "value": "2023-08-15 10:11:11","path":"data.inServiceFeedbackList[2]","info":"服务中时间"},
+
+          {"key":"createdDate", "value": "2023-08-13 10:11:11","path":"data.sendOrdersFeedbackList[0]","info":"派单时间"},
+          {"key":"createdDate", "value": "2023-08-13 10:11:11","path":"data.sendOrdersFeedbackList[1]","info":"派单时间"},
+          {"key":"createdDate", "value": "2023-08-13 10:11:11","path":"data.sendOrdersFeedbackList[2]","info":"派单时间"}
+      ],
+      "searchAzWgmxDetail":[
+          {"key":"fksj", "value": "2023-08-19 10:10:10","path":"data.azdMxSpgcList[0]","info":"结算单查询-操作时间"},
+          {"key":"fksj", "value": "2023-08-19 10:10:10","path":"data.azdMxSpgcList[1]","info":"结算单查询-操作时间"},
+          {"key":"fksj", "value": "2023-08-19 10:10:10","path":"data.azdMxSpgcList[2]","info":"结算单查询-操作时间"},
+          {"key":"fksj", "value": "2023-08-19 10:10:10","path":"data.azdMxSpgcList[3]","info":"结算单查询-操作时间"},
+          {"key":"fksj", "value": "2023-08-19 10:10:10","path":"data.azdMxSpgcList[4]","info":"结算单查询-操作时间"},
+          {"key":"gmsj", "value": "2023-08-20 10:10:10","path":"data","info":"结算单查询-购买时间"},                       
+          {"key":"scazsj", "value": "2023-08-25 10:10:10","path":"data","info":"结算单查询-安装时间"}  
+      ],
+      "download":[
+        {
+            "imgreplace":[
+                      {"annexName":"内机条码图","imageFilePath":"5.png"},
+                      {"annexName":"抽真空图","imageFilePath":"2.png"},
+                      {"annexName":"外机条码图","imageFilePath":"4.png"},                    
+                      {"annexName":"内机上墙图","imageFilePath":"3.png"}
+                    ]
+          },
+          {
+            "imgreplace":[
+                      {"annexName":"内机条码图","imageFilePath":"4.png"},
+                      {"annexName":"抽真空图","imageFilePath":"5.png"}
+                ]
+        }
+        ]
+    }

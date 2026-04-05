@@ -1,0 +1,266 @@
+{
+    "data": {
+        "download": [
+            {
+                "imgreplace": [
+                    {
+                        "annexName": "抽真空照片",
+                        "imageFilePath": "4aa6702a847544d99be00ad5ebe65c53.png"
+                    },
+                    {
+                        "annexName": "安装服务确认书",
+                        "imageFilePath": "a03c66c7ffb0481394c028750850c9cc.png"
+                    }
+                ]
+            },
+            {
+                "imgreplace": [
+                    {
+                        "annexName": "抽真空照片",
+                        "imageFilePath": "e86a702dd65c42038565f939574a61e6.png"
+                    }
+                ]
+            }
+        ],
+        "getWorkOrderDetailList": [
+            {
+                "info": "产品1购买时间",
+                "key": "buyTime",
+                "path": "data.workOrderDetailProductInfoVOList[0]",
+                "value": "2026-04-04T17:44:19.000Z"
+            },
+            {
+                "info": "产品2购买时间",
+                "key": "buyTime",
+                "path": "data.workOrderDetailProductInfoVOList[1]",
+                "value": "2026-04-04T17:44:20.000Z"
+            }
+        ],
+        "orderid": "260403023790002",
+        "searchAzWgmxDetail": [
+            {
+                "info": "结算单查询-操作时间1",
+                "key": "fksj",
+                "path": "data.azdMxSpgcList[0]",
+                "value": "2026-04-04T17:44:29.000Z"
+            },
+            {
+                "info": "结算单查询-操作时间2",
+                "key": "fksj",
+                "path": "data.azdMxSpgcList[1]",
+                "value": "2026-05-06T16:00:00.000Z"
+            },
+            {
+                "info": "结算单查询-操作时间3",
+                "key": "fksj",
+                "path": "data.azdMxSpgcList[2]",
+                "value": "2026-04-29T16:00:00.000Z"
+            },
+            {
+                "info": "结算单查询-购买时间",
+                "key": "gmsj",
+                "path": "data",
+                "value": "2026-04-04T17:44:32.000Z"
+            },
+            {
+                "info": "结算单查询-安装时间",
+                "key": "scazsj",
+                "path": "data",
+                "value": "2026-04-04T17:44:33.000Z"
+            }
+        ],
+        "searchWorkOrderDetail": [
+            {
+                "info": "评价时间",
+                "key": "evaluationTime",
+                "path": "data.workOrderEvaluationRespList",
+                "value": "2026-04-04T17:43:56.000Z"
+            },
+            {
+                "info": "预约开始时间",
+                "key": "appointBeginTime",
+                "path": "data.workOrderResp",
+                "value": "2026-04-04T17:43:52.000Z"
+            },
+            {
+                "info": "结束预约时间",
+                "key": "appointEndTime",
+                "path": "data.workOrderResp",
+                "value": "2026-04-04T17:43:53.000Z"
+            },
+            {
+                "info": "期望上门开始时间",
+                "key": "expectDoorToDoorBeginTime",
+                "path": "data.workOrderResp",
+                "value": "2026-04-04T17:43:58.000Z"
+            },
+            {
+                "info": "期望上门结束时间",
+                "key": "expectDoorToDoorEndTime",
+                "path": "data.workOrderResp",
+                "value": "2026-04-04T17:44:00.000Z"
+            },
+            {
+                "info": "出库时间",
+                "key": "deliveryTime",
+                "path": "data.workOrderResp",
+                "value": "2026-04-04T17:44:01.000Z"
+            },
+            {
+                "info": "签到定位",
+                "key": "signInLocation",
+                "path": "data.workOrderResp",
+                "value": "签到定位12"
+            },
+            {
+                "info": "操作记录时间1",
+                "key": "lastModifiedDate",
+                "path": "data.workOrderFeedbackRespList[0]",
+                "value": "2026-04-04T17:44:10.000Z"
+            },
+            {
+                "info": "操作内容1",
+                "key": "content",
+                "path": "data.workOrderFeedbackRespList[0]",
+                "value": "操作内容11"
+            },
+            {
+                "info": "操作记录时间2",
+                "key": "lastModifiedDate",
+                "path": "data.workOrderFeedbackRespList[1]",
+                "value": "2026-04-04T17:44:11.000Z"
+            },
+            {
+                "info": "操作内容2",
+                "key": "content",
+                "path": "data.workOrderFeedbackRespList[1]",
+                "value": "操作内容22"
+            },
+            {
+                "info": "操作记录时间3",
+                "key": "lastModifiedDate",
+                "path": "data.workOrderFeedbackRespList[2]",
+                "value": "2026-04-04T18:56:58.000Z"
+            },
+            {
+                "info": "操作内容3",
+                "key": "content",
+                "path": "data.workOrderFeedbackRespList[2]",
+                "value": "操作内容2244"
+            }
+        ],
+        "searchWorkOrderListEs": [
+            {
+                "info": "联系人姓名",
+                "key": "contactName",
+                "path": "data",
+                "value": "刘1"
+            },
+            {
+                "info": "联系人手机号",
+                "key": "contactPhone",
+                "path": "data",
+                "value": "13512335081"
+            },
+            {
+                "info": "创建时间",
+                "key": "createdDate",
+                "path": "data",
+                "value": "2026-04-04T17:43:50.000Z"
+            },
+            {
+                "info": "预约开始时间",
+                "key": "appointBeginTime",
+                "path": "data",
+                "value": "2026-04-04T17:43:52.000Z"
+            },
+            {
+                "info": "预约结束时间",
+                "key": "appointEndTime",
+                "path": "data",
+                "value": "2026-04-04T17:43:53.000Z"
+            },
+            {
+                "info": "完工时间",
+                "key": "workOrderCompleteTime",
+                "path": "data",
+                "value": "2026-04-04T17:43:54.000Z"
+            },
+            {
+                "info": "评价时间",
+                "key": "lastEvaluationTime",
+                "path": "data",
+                "value": "2026-04-04T17:43:56.000Z"
+            }
+        ],
+        "searchWorkOrderNodeResp": [
+            {
+                "info": "网点完工时间",
+                "key": "createdDate",
+                "path": "data.completeFeedbackList[0]",
+                "value": "2026-04-04T17:44:22.000Z"
+            },
+            {
+                "info": "网点完工时间",
+                "key": "createdDate",
+                "path": "data.completeFeedbackList[1]",
+                "value": "2026-04-04T17:44:22.000Z"
+            },
+            {
+                "info": "网点完工时间",
+                "key": "createdDate",
+                "path": "data.completeFeedbackList[2]",
+                "value": "2026-04-04T17:44:22.000Z"
+            },
+            {
+                "info": "网点完工时间",
+                "key": "createdDate",
+                "path": "data.completeFeedbackList[3]",
+                "value": "2026-04-04T17:44:22.000Z"
+            },
+            {
+                "info": "创建时间",
+                "key": "createdDate",
+                "path": "data.createdFeedbackList[0]",
+                "value": "2026-04-04T17:44:23.000Z"
+            },
+            {
+                "info": "服务中时间",
+                "key": "createdDate",
+                "path": "data.inServiceFeedbackList[0]",
+                "value": "2026-04-04T17:44:25.000Z"
+            },
+            {
+                "info": "服务中时间",
+                "key": "createdDate",
+                "path": "data.inServiceFeedbackList[1]",
+                "value": "2026-04-04T17:44:25.000Z"
+            },
+            {
+                "info": "服务中时间",
+                "key": "createdDate",
+                "path": "data.inServiceFeedbackList[2]",
+                "value": "2026-04-04T17:44:25.000Z"
+            },
+            {
+                "info": "派单时间",
+                "key": "createdDate",
+                "path": "data.sendOrdersFeedbackList[0]",
+                "value": "2026-04-04T17:44:26.000Z"
+            },
+            {
+                "info": "派单时间",
+                "key": "createdDate",
+                "path": "data.sendOrdersFeedbackList[1]",
+                "value": "2026-04-04T17:44:26.000Z"
+            },
+            {
+                "info": "派单时间",
+                "key": "createdDate",
+                "path": "data.sendOrdersFeedbackList[2]",
+                "value": "2026-04-04T17:44:26.000Z"
+            }
+        ]
+    },
+    "success": true
+}
