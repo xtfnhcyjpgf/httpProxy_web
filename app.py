@@ -8,7 +8,7 @@ from functools import wraps
 from werkzeug.utils import secure_filename
 import os
 import uuid
-from config import SECRET_KEY, CORS_ORIGINS, UPLOAD_FOLDER, ALLOWED_EXTENSIONS, MAX_CONTENT_LENGTH
+from config import SECRET_KEY, CORS_ORIGINS, UPLOAD_FOLDER, ALLOWED_EXTENSIONS, MAX_CONTENT_LENGTH, SERVER_URL
 from database import (
     init_database,
     verify_user,
@@ -26,7 +26,10 @@ from database import (
     batch_query_work_orders,
     get_work_order_id_by_orderid,
     work_order_exists,
-    create_work_order_from_upload
+    create_work_order_from_upload,
+    get_config_value,
+    set_config_value,
+    get_work_orders_with_new_orderid
 )
 
 # 初始化Flask应用
@@ -46,8 +49,8 @@ CORS(app, resources={r"/api/*": {"origins": CORS_ORIGINS}})
 # ============ 辅助函数 ============
 
 def get_base_url():
-    """获取当前请求的基础URL（协议+主机+端口）"""
-    return request.host_url.rstrip('/')
+    """获取服务器配置的基础URL（协议+主机+端口）"""
+    return SERVER_URL.rstrip('/')
 
 
 def build_full_image_url(image_path):
@@ -779,6 +782,52 @@ def upload_work_order():
         return api_response(False, message=f'创建工单失败: {error}', status_code=500)
 
     return api_response(True, data=result, message='工单创建成功')
+
+
+# ============ 系统配置接口 ============
+
+@app.route('/api/config/system', methods=['GET'])
+def get_system_config():
+    """
+    获取系统配置（第三方调用，无需鉴权）
+    """
+    enable_work_order = get_config_value('enable_work_order', 'false')
+    return api_response(True, data={
+        'enable_work_order': enable_work_order.lower() in ['true', '1', 'yes']
+    })
+
+
+@app.route('/api/config/system', methods=['PUT'])
+@login_required
+def set_system_config():
+    """
+    设置系统配置（需要登录）
+    """
+    data = request.get_json()
+    if not data:
+        return api_response(False, message='请求数据无效', status_code=400)
+
+    enable_work_order = data.get('enable_work_order', False)
+    success = set_config_value('enable_work_order', 'true' if enable_work_order else 'false')
+
+    if success:
+        return api_response(True, message='配置更新成功')
+    else:
+        return api_response(False, message='配置更新失败', status_code=500)
+
+
+@app.route('/api/work-orders/new-orderids', methods=['GET'])
+def get_new_orderids():
+    """
+    获取有新工单编号的工单列表（第三方调用，无需鉴权）
+    如果 启用本系统工单数据 设置为false，返回空数组
+    """
+    enable_work_order = get_config_value('enable_work_order', 'false')
+    if enable_work_order.lower() not in ['true', '1', 'yes']:
+        return api_response(True, data=[])
+    
+    result = get_work_orders_with_new_orderid()
+    return api_response(True, data=result)
 
 
 # ============ 启动应用 ============

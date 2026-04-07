@@ -26,3 +26,6 @@ JWT_EXPIRATION_HOURS = 24
 UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp'}
 MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB最大文件大小
+
+# 服务器地址配置（用于生成完整的图片访问URL）
+SERVER_URL = 'http://8.137.176.50:8080'

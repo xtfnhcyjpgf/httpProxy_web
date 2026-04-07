@@ -129,6 +129,16 @@ def init_database():
         )
     ''')
 
+    # 创建system_config表 - 系统配置表（无外键）
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS system_config (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            config_key TEXT UNIQUE NOT NULL,
+            config_value TEXT DEFAULT '',
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+
     # 检查是否已存在admin账号，不存在则创建
     cursor.execute('SELECT id FROM users WHERE username = ?', ('admin',))
     if cursor.fetchone() is None:
@@ -1093,6 +1103,66 @@ def create_work_order_from_upload(order_data):
     except Exception as e:
         conn.close()
         return None, str(e)
+
+
+def get_config_value(config_key, default_value=''):
+    """获取配置值"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute('SELECT config_value FROM system_config WHERE config_key = ?', (config_key,))
+    result = cursor.fetchone()
+    conn.close()
+
+    return result['config_value'] if result else default_value
+
+
+def set_config_value(config_key, config_value):
+    """设置配置值"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute('SELECT id FROM system_config WHERE config_key = ?', (config_key,))
+        exists = cursor.fetchone()
+
+        if exists:
+            cursor.execute('''
+                UPDATE system_config
+                SET config_value = ?, updated_at = CURRENT_TIMESTAMP
+                WHERE config_key = ?
+            ''', (config_value, config_key))
+        else:
+            cursor.execute('''
+                INSERT INTO system_config (config_key, config_value)
+                VALUES (?, ?)
+            ''', (config_key, config_value))
+
+        conn.commit()
+        conn.close()
+        return True
+    except Exception as e:
+        conn.close()
+        print(f"设置配置失败: {e}")
+        return False
+
+
+def get_work_orders_with_new_orderid():
+    """获取有新工单编号的工单列表"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute('''
+        SELECT orderid, new_orderid
+        FROM work_orders
+        WHERE new_orderid IS NOT NULL AND new_orderid != ''
+        ORDER BY id DESC
+    ''')
+
+    results = cursor.fetchall()
+    conn.close()
+
+    return [{'orderid': row['orderid'], 'neworderid': row['new_orderid']} for row in results]
 
 
 # 初始化数据库

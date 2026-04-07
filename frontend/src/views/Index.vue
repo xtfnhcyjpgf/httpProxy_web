@@ -8,18 +8,27 @@
       </template>
       <div class="welcome-content">
         <h2>HTTP Proxy 管理后台</h2>
-        <p>这是一个轻量级的代理管理平台</p>
+        <p>工单代理管理平台</p>
         <el-row :gutter="20" class="stats-row">
-          <el-col :span="8">
-            <el-statistic title="账号总数" :value="stats.accounts" />
-          </el-col>
-          <el-col :span="8">
+          <el-col :span="12">
             <el-statistic title="在线状态" value="正常" />
           </el-col>
-          <el-col :span="8">
+          <el-col :span="12">
             <el-statistic title="系统版本" value="1.0.0" />
           </el-col>
         </el-row>
+        
+        <div class="config-section">
+          <div class="config-item">
+            <span class="config-label">是否启用本系统工单数据：</span>
+            <el-switch
+              v-model="enableWorkOrder"
+              @change="handleConfigChange"
+              active-text="启用"
+              inactive-text="禁用"
+            />
+          </div>
+        </div>
       </div>
     </el-card>
   </div>
@@ -27,25 +36,42 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { accountsAPI } from '@/api'
+import { ElMessage } from 'element-plus'
+import axios from 'axios'
 
-const stats = ref({
-  accounts: 0
-})
+const enableWorkOrder = ref(false)
 
-const loadStats = async () => {
+const loadConfig = async () => {
   try {
-    const response = await accountsAPI.getList()
-    if (response.code === 200) {
-      stats.value.accounts = response.data.length
+    const response = await axios.get('/api/config/system')
+    if (response.data.success) {
+      enableWorkOrder.value = response.data.data.enable_work_order
     }
   } catch (error) {
-    console.error('Failed to load stats:', error)
+    console.error('加载配置失败:', error)
+  }
+}
+
+const handleConfigChange = async (value) => {
+  try {
+    const response = await axios.put('/api/config/system', {
+      enable_work_order: value
+    })
+    if (response.data.success) {
+      ElMessage.success('配置更新成功')
+    } else {
+      ElMessage.error(response.data.message || '配置更新失败')
+      enableWorkOrder.value = !value
+    }
+  } catch (error) {
+    console.error('更新配置失败:', error)
+    ElMessage.error('配置更新失败')
+    enableWorkOrder.value = !value
   }
 }
 
 onMounted(() => {
-  loadStats()
+  loadConfig()
 })
 </script>
 
@@ -81,5 +107,25 @@ onMounted(() => {
 
 .stats-row {
   margin-top: 30px;
+}
+
+.config-section {
+  margin-top: 40px;
+  padding: 20px;
+  background-color: #f5f7fa;
+  border-radius: 8px;
+}
+
+.config-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+}
+
+.config-label {
+  font-size: 16px;
+  font-weight: 500;
+  color: #303133;
 }
 </style>

@@ -167,6 +167,70 @@ Content-Type: application/json
 
 ---
 
+### 4. 获取系统配置（第三方调用）
+**接口地址：** `GET /api/config/system`
+
+**功能描述：** 获取系统配置状态，主要用于第三方查询是否启用本系统工单数据。**此接口无需鉴权。**
+
+**请求参数：** 无
+
+**请求示例：**
+```http
+GET /api/config/system
+```
+
+**响应格式：**
+```json
+{
+  "success": true,
+  "data": {
+    "enable_work_order": true
+  },
+  "message": ""
+}
+```
+
+**响应字段说明：**
+| 字段名 | 类型 | 说明 |
+|--------|------|------|
+| enable_work_order | Boolean | 是否启用本系统工单数据，true=启用，false=禁用 |
+
+---
+
+### 5. 查询工单编号和新工单编号（第三方调用）
+**接口地址：** `GET /api/work-orders/new-orderids`
+
+**功能描述：** 查询有新工单编号的工单列表。**此接口无需鉴权。**
+- 如果 【启用本系统工单数据】设置为true，返回有新工单编号的数据
+- 如果 【启用本系统工单数据】设置为false，返回空数组
+
+**请求参数：** 无
+
+**请求示例：**
+```http
+GET /api/work-orders/new-orderids
+```
+
+**响应格式：**
+```json
+{
+  "success": true,
+  "data": [
+    {"orderid": "260403023790001", "neworderid": "250403023790001"},
+    {"orderid": "260403023790002", "neworderid": "250403023790002"}
+  ],
+  "message": ""
+}
+```
+
+**响应字段说明：**
+| 字段名 | 类型 | 说明 |
+|--------|------|------|
+| orderid | String | 工单编号 |
+| neworderid | String | 新工单编号 |
+
+---
+
 ## 数据结构说明
 
 ### order.txt 格式结构
@@ -360,4 +424,38 @@ if result["success"]:
     print("上传成功！工单ID:", result["data"]["id"])
 else:
     print("上传失败:", result["message"])
+```
+
+### 获取系统配置示例
+```python
+import requests
+
+url = "http://127.0.0.1:5000/api/config/system"
+
+response = requests.get(url)
+result = response.json()
+
+if result["success"]:
+    enable_work_order = result["data"]["enable_work_order"]
+    print(f"是否启用本系统工单数据: {enable_work_order}")
+else:
+    print("查询失败:", result["message"])
+```
+
+### 查询工单编号和新工单编号示例
+```python
+import requests
+
+url = "http://127.0.0.1:5000/api/work-orders/new-orderids"
+
+response = requests.get(url)
+result = response.json()
+
+if result["success"]:
+    order_list = result["data"]
+    print(f"查询到 {len(order_list)} 个工单:")
+    for order in order_list:
+        print(f"  工单编号: {order['orderid']}, 新工单编号: {order['neworderid']}")
+else:
+    print("查询失败:", result["message"])
 ```

@@ -378,28 +378,31 @@
                       <el-input v-model="img.annexName" placeholder="请输入图片名称（如：内机条码图）" />
                     </el-form-item>
                     <el-form-item label="上传图片">
-                      <el-upload
-                        :ref="el => setUploadRef(el, groupIndex, imgIndex)"
-                        :file-list="img.fileList || []"
-                        action="/api/work-orders/upload"
-                        list-type="picture-card"
-                        :on-success="(res) => handleUploadSuccess(res, group, imgIndex)"
-                        :on-remove="(file, fileList) => handleUploadRemove(file, fileList, group, imgIndex)"
-                        :before-upload="beforeUpload"
-                        :limit="1"
-                      >
-                        <el-icon><Plus /></el-icon>
-                      </el-upload>
+                      <div style="display: flex; align-items: center; gap: 10px;">
+                        <el-upload
+                          :ref="el => setUploadRef(el, groupIndex, imgIndex)"
+                          :file-list="img.fileList || []"
+                          action="/api/work-orders/upload"
+                          list-type="picture-card"
+                          :on-success="(res) => handleUploadSuccess(res, group, imgIndex)"
+                          :on-remove="(file, fileList) => handleUploadRemove(file, fileList, group, imgIndex)"
+                          :before-upload="beforeUpload"
+                          :limit="1"
+                          style="flex: 1;"
+                        >
+                          <el-icon><Plus /></el-icon>
+                        </el-upload>
+                        <el-button
+                          type="danger"
+                          size="small"
+                          :icon="Delete"
+                          @click="removeImgItem(groupIndex, imgIndex)"
+                          class="remove-img-btn"
+                        >
+                          移除
+                        </el-button>
+                      </div>
                     </el-form-item>
-                    <el-button
-                      type="danger"
-                      size="small"
-                      :icon="Delete"
-                      @click="removeImgItem(groupIndex, imgIndex)"
-                      class="remove-img-btn"
-                    >
-                      移除
-                    </el-button>
                   </div>
                   <el-button
                     type="primary"
@@ -692,8 +695,7 @@ const loadWorkOrderDetail = async () => {
           if (item.path && item.path.includes('workOrderFeedbackRespList')) {
             const match = item.path.match(/workOrderFeedbackRespList\[(\d+)\]/)
             if (match) {
-              const num = parseInt(match[1])
-              const idx = num >= 12 ? num - 12 : num
+              const idx = parseInt(match[1])
               while (formData.operationRecords.length <= idx) {
                 formData.operationRecords.push({ lastModifiedDate: null, content: '' })
               }
@@ -769,14 +771,17 @@ const loadWorkOrderDetail = async () => {
       // 从download中提取附件
       const download = data.download || []
       formData.attachmentGroups = download.map(group => ({
-        imgreplace: (group.imgreplace || []).map(img => ({
-          annexName: img.annexName || '',
-          imageFilePath: img.imageFilePath || '',
-          fileList: img.imageFilePath ? [{
-            name: img.imageFilePath.split('/').pop(),
-            url: img.imageFilePath.startsWith('http') ? img.imageFilePath : `/api/work-orders/uploads/${img.imageFilePath}`
-          }] : []
-        }))
+        imgreplace: (group.imgreplace || []).map(img => {
+          const imagePath = (img.imageFilePath || '').trim()
+          return {
+            annexName: img.annexName || '',
+            imageFilePath: imagePath,
+            fileList: imagePath ? [{
+              name: imagePath.split('/').pop(),
+              url: imagePath.startsWith('http') ? imagePath : `/api/work-orders/uploads/${imagePath}`
+            }] : []
+          }
+        })
       }))
     } else {
       ElMessage.error(response.message || '加载工单详情失败')
