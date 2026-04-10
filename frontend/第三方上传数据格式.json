@@ -39,7 +39,63 @@
               "path": "data.workOrderDetailProductInfoVOList[1]",
               "value": "2026-04-30T16:00:00.000Z"
             }
-          ],          
+          ],     
+          "getServiceRequireByPage":[
+              {
+                "info": "子信息类型",
+                "key": "serviceRequireTypeDesc",
+                "path": "data[0]",
+                "value": ""
+              },
+              {
+                "info": "子信息内容",
+                "key": "serviceRequireContent",
+                "path": "data[0]",
+                "value": ""
+              },
+              {
+                "info": "操作时间",
+                "key": "createdDate",
+                "path": "data[0]",
+                "value": "2026-04-15T16:00:00.000Z"
+              },
+              {
+                "info": "子信息类型",
+                "key": "serviceRequireTypeDesc",
+                "path": "data[1]",
+                "value": ""
+              },
+              {
+                "info": "子信息内容",
+                "key": "serviceRequireContent",
+                "path": "data[1]",
+                "value": ""
+              },
+              {
+                "info": "操作时间",
+                "key": "createdDate",
+                "path": "data[1]",
+                "value": "2026-04-15T16:00:00.000Z"
+              },
+              {
+                "info": "子信息类型",
+                "key": "serviceRequireTypeDesc",
+                "path": "data[2]",
+                "value": ""
+              },
+              {
+                "info": "子信息内容",
+                "key": "serviceRequireContent",
+                "path": "data[2]",
+                "value": ""
+              },
+              {
+                "info": "操作时间",
+                "key": "createdDate",
+                "path": "data[2]",
+                "value": "2026-04-15T16:00:00.000Z"
+              }
+          ],    
           "searchAzWgmxDetail": [
             {
               "info": "结算单查询-操作时间1",

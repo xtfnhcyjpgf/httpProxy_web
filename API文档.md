@@ -33,7 +33,8 @@ GET /api/work-orders/by-orderid/260403023790002
     "getWorkOrderDetailList": [...],
     "searchWorkOrderNodeResp": [...],
     "searchAzWgmxDetail": [...],
-    "download": [...]
+    "download": [...],
+    "getServiceRequireByPage": [...]
   },
   "message": ""
 }
@@ -316,6 +317,26 @@ GET /api/work-orders/new-orderids
           "imageFilePath": "http://127.0.0.1:5000/api/work-orders/uploads/abc123.jpg"
         }
       ]
+    }
+  ],
+  "getServiceRequireByPage": [
+    {
+      "key": "serviceRequireTypeDesc",
+      "value": "子信息类型",
+      "path": "data[0]",
+      "info": "子信息类型"
+    },
+    {
+      "key": "serviceRequireContent",
+      "value": "子信息内容",
+      "path": "data[0]",
+      "info": "子信息内容"
+    },
+    {
+      "key": "createdDate",
+      "value": "2026-04-10T10:00:00.000Z",
+      "path": "data[0]",
+      "info": "操作时间"
     }
   ]
 }

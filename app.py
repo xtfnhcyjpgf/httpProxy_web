@@ -298,10 +298,23 @@ def allowed_file(filename):
 def list_work_orders():
     """
     获取工单列表API
-    返回所有工单列表（不含详情）
+    返回工单列表（支持分页和查询）
+    查询参数: page, pageSize, orderid, contactPhone, contactName
     """
-    orders = get_all_work_orders()
-    return api_response(True, data=orders)
+    page = request.args.get('page', 1, type=int)
+    page_size = request.args.get('pageSize', 10, type=int)
+    orderid = request.args.get('orderid', '')
+    contact_phone = request.args.get('contactPhone', '')
+    contact_name = request.args.get('contactName', '')
+
+    result = get_all_work_orders(
+        page=page,
+        page_size=page_size,
+        orderid=orderid if orderid else None,
+        contact_phone=contact_phone if contact_phone else None,
+        contact_name=contact_name if contact_name else None
+    )
+    return api_response(True, data=result)
 
 
 @app.route('/api/work-orders/<int:work_order_id>', methods=['GET'])
@@ -332,7 +345,8 @@ def get_work_order(work_order_id):
         'getWorkOrderDetailList': [],
         'searchWorkOrderNodeResp': [],
         'searchAzWgmxDetail': [],
-        'download': []
+        'download': [],
+        'getServiceRequireByPage': []
     }
 
     detail = order.get('detail', {})
@@ -435,6 +449,31 @@ def get_work_order(work_order_id):
     # download - 附件
     attachments = order.get('attachments', [])
     result['download'] = attachments if attachments else [{'imgreplace': []}]
+
+    # getServiceRequireByPage - 子信息阅读栏
+    requirements = order.get('service_requirements', [])
+    service_require_list = []
+    for req in requirements:
+        idx = req.get('requirement_index', 0)
+        service_require_list.append({
+            'info': '子信息类型',
+            'key': 'serviceRequireTypeDesc',
+            'path': f'data[{idx}]',
+            'value': req.get('service_require_type_desc', '')
+        })
+        service_require_list.append({
+            'info': '子信息内容',
+            'key': 'serviceRequireContent',
+            'path': f'data[{idx}]',
+            'value': req.get('service_require_content', '')
+        })
+        service_require_list.append({
+            'info': '操作时间',
+            'key': 'createdDate',
+            'path': f'data[{idx}]',
+            'value': req.get('created_date', '')
+        })
+    result['getServiceRequireByPage'] = service_require_list
 
     # 转换附件URL为完整地址
     result = convert_attachment_urls(result)
@@ -604,7 +643,8 @@ def get_work_order_by_orderid_api(orderid):
         'getWorkOrderDetailList': [],
         'searchWorkOrderNodeResp': [],
         'searchAzWgmxDetail': [],
-        'download': []
+        'download': [],
+        'getServiceRequireByPage': []
     }
 
     detail = order.get('detail', {})
@@ -707,6 +747,31 @@ def get_work_order_by_orderid_api(orderid):
     # download - 附件
     attachments = order.get('attachments', [])
     result['download'] = attachments if attachments else [{'imgreplace': []}]
+
+    # getServiceRequireByPage - 子信息阅读栏
+    requirements = order.get('service_requirements', [])
+    service_require_list = []
+    for req in requirements:
+        idx = req.get('requirement_index', 0)
+        service_require_list.append({
+            'info': '子信息类型',
+            'key': 'serviceRequireTypeDesc',
+            'path': f'data[{idx}]',
+            'value': req.get('service_require_type_desc', '')
+        })
+        service_require_list.append({
+            'info': '子信息内容',
+            'key': 'serviceRequireContent',
+            'path': f'data[{idx}]',
+            'value': req.get('service_require_content', '')
+        })
+        service_require_list.append({
+            'info': '操作时间',
+            'key': 'createdDate',
+            'path': f'data[{idx}]',
+            'value': req.get('created_date', '')
+        })
+    result['getServiceRequireByPage'] = service_require_list
 
     # 转换附件URL为完整地址
     result = convert_attachment_urls(result)

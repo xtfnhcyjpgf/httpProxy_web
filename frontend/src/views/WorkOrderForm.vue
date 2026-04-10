@@ -7,6 +7,30 @@
         </div>
       </template>
 
+      <!-- 批量替换区域（仅编辑模式显示） -->
+      <div v-if="isEditMode" class="batch-replace-section">
+        <el-divider content-position="left">批量替换日期</el-divider>
+        <div class="batch-replace-form">
+          <el-form-item label="原始日期">
+            <el-date-picker
+              v-model="originalDate"
+              type="date"
+              placeholder="选择原始日期"
+              style="width: 200px"
+            />
+          </el-form-item>
+          <el-form-item label="替换日期">
+            <el-date-picker
+              v-model="replaceDate"
+              type="date"
+              placeholder="选择替换日期"
+              style="width: 200px"
+            />
+          </el-form-item>
+          <el-button type="primary" @click="batchReplaceDates">批量替换</el-button>
+        </div>
+      </div>
+
       <el-form
         ref="formRef"
         :model="formData"
@@ -30,6 +54,7 @@
                 <el-menu-item index="node">节点信息</el-menu-item>
                 <el-menu-item index="settlement">结算信息</el-menu-item>
                 <el-menu-item index="attachment">附件上传</el-menu-item>
+                <el-menu-item index="service-require">子信息阅读栏</el-menu-item>
               </el-menu>
             </el-affix>
           </div>
@@ -346,7 +371,48 @@
               </el-table>
             </div>
 
-            <!-- Section 7: 附件上传 -->
+            <!-- Section 7: 子信息阅读栏 -->
+            <div id="service-require" class="form-section">
+              <h3 class="section-title">
+                子信息阅读栏
+                <el-button type="primary" size="small" :icon="Plus" @click="addServiceRequire">
+                  添加子信息
+                </el-button>
+              </h3>
+              <div class="service-requires">
+                <div
+                  v-for="(require, reqIndex) in formData.serviceRequirements"
+                  :key="reqIndex"
+                  class="service-require-item"
+                >
+                  <div class="service-require-header">
+                    <span>子信息 {{ reqIndex + 1 }}</span>
+                    <el-button
+                      type="danger"
+                      size="small"
+                      :icon="Delete"
+                      @click="removeServiceRequire(reqIndex)"
+                    />
+                  </div>
+                  <el-form-item label="子信息类型">
+                    <el-input v-model="require.serviceRequireTypeDesc" placeholder="请输入子信息类型" />
+                  </el-form-item>
+                  <el-form-item label="子信息内容">
+                    <el-input v-model="require.serviceRequireContent" placeholder="请输入子信息内容" />
+                  </el-form-item>
+                  <el-form-item label="操作时间">
+                    <el-date-picker
+                      v-model="require.createdDate"
+                      type="datetime"
+                      placeholder="选择操作时间"
+                      style="width: 100%"
+                    />
+                  </el-form-item>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section 8: 附件上传 -->
             <div id="attachment" class="form-section">
               <h3 class="section-title">
                 附件上传
@@ -486,11 +552,101 @@ const formData = reactive({
 
   // 附件上传 - download结构
   // 每个group是一个imgreplace，包含多个图片
-  attachmentGroups: []
+  attachmentGroups: [],
+
+  // 子信息阅读栏
+  serviceRequirements: []
 })
 
 // upload组件ref映射
 const uploadRefs = ref({})
+
+// 批量替换日期相关变量
+const originalDate = ref(null)
+const replaceDate = ref(null)
+
+// 批量替换日期函数
+const batchReplaceDates = () => {
+  if (!originalDate.value || !replaceDate.value) {
+    ElMessage.warning('请选择原始日期和替换日期')
+    return
+  }
+
+  // 格式化日期为 YYYY-MM-DD
+  const formatDate = (date) => {
+    const d = new Date(date)
+    const year = d.getFullYear()
+    const month = String(d.getMonth() + 1).padStart(2, '0')
+    const day = String(d.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+  }
+
+  const originalDateStr = formatDate(originalDate.value)
+  const replaceDateStr = formatDate(replaceDate.value)
+
+  // 替换日期时间对象中的日期部分
+  const replaceDateInDateTime = (dateObj) => {
+    if (!dateObj) return dateObj
+    const d = new Date(dateObj)
+    const newDate = new Date(replaceDate.value)
+    d.setFullYear(newDate.getFullYear())
+    d.setMonth(newDate.getMonth())
+    d.setDate(newDate.getDate())
+    return d
+  }
+
+  // 替换文本中的日期
+  const replaceDateInText = (text) => {
+    if (!text) return text
+    // 匹配 YYYY-MM-DD 格式的日期
+    const regex = new RegExp(originalDateStr.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'g')
+    return text.replace(regex, replaceDateStr)
+  }
+
+  // 递归处理对象中的所有字段
+  const processObject = (obj) => {
+    if (!obj) return
+
+    for (const key in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        const value = obj[key]
+
+        // 处理 Date 类型
+        if (value instanceof Date) {
+          const valueDateStr = formatDate(value)
+          if (valueDateStr === originalDateStr) {
+            obj[key] = replaceDateInDateTime(value)
+          }
+        }
+        // 处理 String 类型
+        else if (typeof value === 'string') {
+          obj[key] = replaceDateInText(value)
+        }
+        // 处理 Array 类型
+        else if (Array.isArray(value)) {
+          value.forEach(item => {
+            if (typeof item === 'object' && item !== null) {
+              processObject(item)
+            } else if (typeof item === 'string') {
+              // 直接替换数组中的字符串
+              const index = value.indexOf(item)
+              value[index] = replaceDateInText(item)
+            }
+          })
+        }
+        // 处理嵌套 Object 类型
+        else if (typeof value === 'object' && value !== null) {
+          processObject(value)
+        }
+      }
+    }
+  }
+
+  // 处理 formData 中的所有数据
+  processObject(formData)
+
+  ElMessage.success('批量替换完成')
+}
 
 // 表单验证规则
 const formRules = {
@@ -569,6 +725,20 @@ const removeImgItem = (groupIndex, imgIndex) => {
   formData.attachmentGroups[groupIndex].imgreplace.splice(imgIndex, 1)
 }
 
+// 添加子信息
+const addServiceRequire = () => {
+  formData.serviceRequirements.push({
+    serviceRequireTypeDesc: '',
+    serviceRequireContent: '',
+    createdDate: null
+  })
+}
+
+// 移除子信息
+const removeServiceRequire = (index) => {
+  formData.serviceRequirements.splice(index, 1)
+}
+
 // 设置upload组件ref
 const setUploadRef = (el, groupIndex, imgIndex) => {
   if (el) {
@@ -637,6 +807,7 @@ const resetForm = () => {
   formData.settlementInstallTime = null
   formData.settlementList.splice(0, formData.settlementList.length)
   formData.attachmentGroups.splice(0, formData.attachmentGroups.length)
+  formData.serviceRequirements.splice(0, formData.serviceRequirements.length)
 }
 
 // 目录导航选中
@@ -783,6 +954,36 @@ const loadWorkOrderDetail = async () => {
           }
         })
       }))
+
+      // 从getServiceRequireByPage中提取子信息阅读栏数据
+      const serviceRequireList = data.getServiceRequireByPage || []
+      const serviceRequireMap = {}
+      serviceRequireList.forEach(item => {
+        const key = item.key
+        const value = item.value
+        const path = item.path || ''
+        const match = path.match(/data\[(\d+)\]/)
+        if (match) {
+          const idx = parseInt(match[1])
+          if (!serviceRequireMap[idx]) {
+            serviceRequireMap[idx] = {
+              serviceRequireTypeDesc: '',
+              serviceRequireContent: '',
+              createdDate: null
+            }
+          }
+          if (key === 'serviceRequireTypeDesc') {
+            serviceRequireMap[idx].serviceRequireTypeDesc = value || ''
+          } else if (key === 'serviceRequireContent') {
+            serviceRequireMap[idx].serviceRequireContent = value || ''
+          } else if (key === 'createdDate') {
+            serviceRequireMap[idx].createdDate = value ? new Date(value) : null
+          }
+        }
+      })
+      formData.serviceRequirements = Object.keys(serviceRequireMap)
+        .sort((a, b) => parseInt(a) - parseInt(b))
+        .map(key => serviceRequireMap[key])
     } else {
       ElMessage.error(response.message || '加载工单详情失败')
     }
@@ -852,7 +1053,13 @@ const handleSubmit = async () => {
         inServiceFeedbackList,
         sendOrdersFeedbackList,
         // 结算数组
-        settlementList: settlementData
+        settlementList: settlementData,
+        // 子信息阅读栏
+        serviceRequirements: formData.serviceRequirements.map(item => ({
+          serviceRequireTypeDesc: item.serviceRequireTypeDesc,
+          serviceRequireContent: item.serviceRequireContent,
+          createdDate: item.createdDate ? item.createdDate.toISOString() : null
+        }))
       }
 
       let response
@@ -897,6 +1104,24 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.batch-replace-section {
+  margin-bottom: 20px;
+  padding: 15px 20px;
+  background: #f0f9ff;
+  border-radius: 4px;
+}
+
+.batch-replace-form {
+  display: flex;
+  align-items: flex-end;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.batch-replace-form .el-form-item {
+  margin-bottom: 0;
 }
 
 .form-layout {
@@ -956,6 +1181,27 @@ onMounted(() => {
 }
 
 .attachment-group-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  font-weight: bold;
+}
+
+.service-requires {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.service-require-item {
+  padding: 15px;
+  background: #fff;
+  border: 1px solid #e4e7ed;
+  border-radius: 4px;
+}
+
+.service-require-header {
   display: flex;
   justify-content: space-between;
   align-items: center;

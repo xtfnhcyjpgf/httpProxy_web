@@ -29,6 +29,14 @@
               style="width: 200px"
             />
           </el-form-item>
+          <el-form-item label="联系人姓名">
+            <el-input
+              v-model="searchForm.contactName"
+              placeholder="请输入联系人姓名"
+              clearable
+              style="width: 200px"
+            />
+          </el-form-item>
           <el-form-item>
             <el-button type="primary" :icon="Search" @click="handleSearch">
               搜索
@@ -116,7 +124,8 @@ const workOrders = ref([])
 
 const searchForm = reactive({
   orderid: '',
-  contactPhone: ''
+  contactPhone: '',
+  contactName: ''
 })
 
 const pagination = reactive({
@@ -143,6 +152,9 @@ const loadWorkOrders = async () => {
     }
     if (searchForm.contactPhone) {
       params.contactPhone = searchForm.contactPhone
+    }
+    if (searchForm.contactName) {
+      params.contactName = searchForm.contactName
     }
 
     const response = await workOrdersAPI.getList(params)
@@ -178,6 +190,7 @@ const handleSearch = () => {
 const handleReset = () => {
   searchForm.orderid = ''
   searchForm.contactPhone = ''
+  searchForm.contactName = ''
   pagination.page = 1
   loadWorkOrders()
 }

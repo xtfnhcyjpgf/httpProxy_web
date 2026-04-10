@@ -139,6 +139,18 @@ def init_database():
         )
     ''')
 
+    # 创建work_order_service_requirements表 - 子信息阅读栏（无外键）
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS work_order_service_requirements (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            work_order_id INTEGER NOT NULL,
+            requirement_index INTEGER NOT NULL,
+            service_require_type_desc TEXT DEFAULT '',
+            service_require_content TEXT DEFAULT '',
+            created_date TEXT DEFAULT ''
+        )
+    ''')
+
     # 检查是否已存在admin账号，不存在则创建
     cursor.execute('SELECT id FROM users WHERE username = ?', ('admin',))
     if cursor.fetchone() is None:
@@ -366,6 +378,21 @@ def create_work_order(order_data):
                     VALUES (?, ?, ?, ?)
                 ''', (work_order_id, group_idx, annex_name, image_path))
 
+        # 插入子信息阅读栏（前端发送：serviceRequirements数组）
+        service_requirements = order_data.get('serviceRequirements', [])
+        for idx, req in enumerate(service_requirements):
+            cursor.execute('''
+                INSERT INTO work_order_service_requirements
+                (work_order_id, requirement_index, service_require_type_desc, service_require_content, created_date)
+                VALUES (?, ?, ?, ?, ?)
+            ''', (
+                work_order_id,
+                idx,
+                req.get('serviceRequireTypeDesc', ''),
+                req.get('serviceRequireContent', ''),
+                req.get('createdDate', '')
+            ))
+
         conn.commit()
         conn.close()
         return {'id': work_order_id, 'orderid': order_data.get('orderid', '')}, None
@@ -436,6 +463,15 @@ def get_work_order_by_id(work_order_id):
         attachments.append({'imgreplace': attachments_dict[group_idx]})
     result['attachments'] = attachments
 
+    # 获取子信息阅读栏数据
+    cursor.execute('''
+        SELECT * FROM work_order_service_requirements
+        WHERE work_order_id = ?
+        ORDER BY requirement_index
+    ''', (work_order_id,))
+    requirements = [dict(row) for row in cursor.fetchall()]
+    result['service_requirements'] = requirements
+
     conn.close()
     return result
 
@@ -456,16 +492,48 @@ def get_work_order_by_orderid(orderid):
     return get_work_order_by_id(order['id'])
 
 
-def get_all_work_orders():
-    """获取所有工单列表（不含详情）"""
+def get_all_work_orders(page=1, page_size=10, orderid=None, contact_phone=None, contact_name=None):
+    """获取工单列表（支持分页和查询）"""
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute('SELECT * FROM work_orders ORDER BY orderid')
+    query = 'SELECT * FROM work_orders WHERE 1=1'
+    count_query = 'SELECT COUNT(*) as total FROM work_orders WHERE 1=1'
+    params = []
+    count_params = []
+
+    if orderid:
+        query += ' AND orderid LIKE ?'
+        count_query += ' AND orderid LIKE ?'
+        params.append(f'%{orderid}%')
+        count_params.append(f'%{orderid}%')
+
+    if contact_phone:
+        query += ' AND contact_phone LIKE ?'
+        count_query += ' AND contact_phone LIKE ?'
+        params.append(f'%{contact_phone}%')
+        count_params.append(f'%{contact_phone}%')
+
+    if contact_name:
+        query += ' AND contact_name LIKE ?'
+        count_query += ' AND contact_name LIKE ?'
+        params.append(f'%{contact_name}%')
+        count_params.append(f'%{contact_name}%')
+
+    query += ' ORDER BY id DESC'
+
+    offset = (page - 1) * page_size
+    query += ' LIMIT ? OFFSET ?'
+    params.extend([page_size, offset])
+
+    cursor.execute(query, params)
     orders = cursor.fetchall()
 
+    cursor.execute(count_query, count_params)
+    total = cursor.fetchone()['total']
+
     conn.close()
-    return [dict(order) for order in orders]
+    return {'records': [dict(order) for order in orders], 'total': total}
 
 
 def update_work_order(work_order_id, order_data):
@@ -596,6 +664,22 @@ def update_work_order(work_order_id, order_data):
                     VALUES (?, ?, ?, ?)
                 ''', (work_order_id, group_idx, annex_name, image_path))
 
+        # 更新子信息阅读栏 - 先删除再插入
+        cursor.execute('DELETE FROM work_order_service_requirements WHERE work_order_id = ?', (work_order_id,))
+        service_requirements = order_data.get('serviceRequirements', [])
+        for idx, req in enumerate(service_requirements):
+            cursor.execute('''
+                INSERT INTO work_order_service_requirements
+                (work_order_id, requirement_index, service_require_type_desc, service_require_content, created_date)
+                VALUES (?, ?, ?, ?, ?)
+            ''', (
+                work_order_id,
+                idx,
+                req.get('serviceRequireTypeDesc', ''),
+                req.get('serviceRequireContent', ''),
+                req.get('createdDate', '')
+            ))
+
         conn.commit()
         conn.close()
         return {'id': work_order_id, 'orderid': order_data.get('orderid', '')}, None
@@ -617,6 +701,7 @@ def delete_work_order(work_order_id):
         attachments = cursor.fetchall()
 
         # 删除数据库记录（按顺序删除子表，最后删除主表）
+        cursor.execute('DELETE FROM work_order_service_requirements WHERE work_order_id = ?', (work_order_id,))
         cursor.execute('DELETE FROM work_order_attachments WHERE work_order_id = ?', (work_order_id,))
         cursor.execute('DELETE FROM work_order_settlements WHERE work_order_id = ?', (work_order_id,))
         cursor.execute('DELETE FROM work_order_nodes WHERE work_order_id = ?', (work_order_id,))
@@ -716,7 +801,8 @@ def batch_query_work_orders(order_ids):
             'getWorkOrderDetailList': [],
             'searchWorkOrderNodeResp': [],
             'searchAzWgmxDetail': [],
-            'download': []
+            'download': [],
+            'getServiceRequireByPage': []
         }
 
         # searchWorkOrderListEs - 工单主表信息
@@ -868,6 +954,39 @@ def batch_query_work_orders(order_ids):
             download_list = [{'imgreplace': []}]
 
         order_result['download'] = download_list
+
+        # 获取并构建子信息阅读栏数据
+        cursor.execute('''
+            SELECT * FROM work_order_service_requirements
+            WHERE work_order_id = ?
+            ORDER BY requirement_index
+        ''', (work_order_id,))
+        requirements = cursor.fetchall()
+
+        service_require_list = []
+        for req in requirements:
+            req_dict = dict(req)
+            idx = req_dict.get('requirement_index', 0)
+            service_require_list.append({
+                'info': '子信息类型',
+                'key': 'serviceRequireTypeDesc',
+                'path': f'data[{idx}]',
+                'value': req_dict.get('service_require_type_desc', '')
+            })
+            service_require_list.append({
+                'info': '子信息内容',
+                'key': 'serviceRequireContent',
+                'path': f'data[{idx}]',
+                'value': req_dict.get('service_require_content', '')
+            })
+            service_require_list.append({
+                'info': '操作时间',
+                'key': 'createdDate',
+                'path': f'data[{idx}]',
+                'value': req_dict.get('created_date', '')
+            })
+
+        order_result['getServiceRequireByPage'] = service_require_list
 
         # 合并到结果（按orderid）
         result[orderid] = order_result
@@ -1096,6 +1215,53 @@ def create_work_order_from_upload(order_data):
                     VALUES (?, ?, ?, ?)
                 ''', (work_order_id, group_idx, annex_name, local_filename))
 
+        # 解析并插入子信息阅读栏数据
+        service_require_list = order_data.get('getServiceRequireByPage', [])
+        requirement_index_map = {}
+        current_idx = 0
+        for req_item in service_require_list:
+            if req_item.get('key') == 'serviceRequireTypeDesc':
+                path = req_item.get('path', '')
+                import re
+                match = re.search(r'\[(\d+)\]', path)
+                if match:
+                    current_idx = int(match.group(1))
+                requirement_index_map[current_idx] = {
+                    'serviceRequireTypeDesc': req_item.get('value', ''),
+                    'serviceRequireContent': '',
+                    'createdDate': ''
+                }
+            elif req_item.get('key') == 'serviceRequireContent':
+                path = req_item.get('path', '')
+                import re
+                match = re.search(r'\[(\d+)\]', path)
+                if match:
+                    idx = int(match.group(1))
+                    if idx in requirement_index_map:
+                        requirement_index_map[idx]['serviceRequireContent'] = req_item.get('value', '')
+            elif req_item.get('key') == 'createdDate':
+                path = req_item.get('path', '')
+                import re
+                match = re.search(r'\[(\d+)\]', path)
+                if match:
+                    idx = int(match.group(1))
+                    if idx in requirement_index_map:
+                        requirement_index_map[idx]['createdDate'] = req_item.get('value', '')
+
+        for idx in sorted(requirement_index_map.keys()):
+            req_data = requirement_index_map[idx]
+            cursor.execute('''
+                INSERT INTO work_order_service_requirements
+                (work_order_id, requirement_index, service_require_type_desc, service_require_content, created_date)
+                VALUES (?, ?, ?, ?, ?)
+            ''', (
+                work_order_id,
+                idx,
+                req_data.get('serviceRequireTypeDesc', ''),
+                req_data.get('serviceRequireContent', ''),
+                req_data.get('createdDate', '')
+            ))
+
         conn.commit()
         conn.close()
         return {'id': work_order_id, 'orderid': orderid}, None
@@ -1163,6 +1329,86 @@ def get_work_orders_with_new_orderid():
     conn.close()
 
     return [{'orderid': row['orderid'], 'neworderid': row['new_orderid']} for row in results]
+
+
+# ==================== 子信息阅读栏相关函数 ====================
+
+def get_work_order_service_requirements(work_order_id):
+    """获取工单的子信息阅读栏数据"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute('''
+        SELECT * FROM work_order_service_requirements
+        WHERE work_order_id = ?
+        ORDER BY requirement_index
+    ''', (work_order_id,))
+
+    requirements = [dict(row) for row in cursor.fetchall()]
+    conn.close()
+    return requirements
+
+
+def create_work_order_service_requirements(work_order_id, requirements_list):
+    """创建子信息阅读栏数据
+    requirements_list格式: [{serviceRequireTypeDesc, serviceRequireContent, createdDate}, ...]
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    for idx, req in enumerate(requirements_list):
+        cursor.execute('''
+            INSERT INTO work_order_service_requirements
+            (work_order_id, requirement_index, service_require_type_desc, service_require_content, created_date)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (
+            work_order_id,
+            idx,
+            req.get('serviceRequireTypeDesc', ''),
+            req.get('serviceRequireContent', ''),
+            req.get('createdDate', '')
+        ))
+
+    conn.commit()
+    conn.close()
+    return True
+
+
+def update_work_order_service_requirements(work_order_id, requirements_list):
+    """更新子信息阅读栏数据（先删除再插入）"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute('DELETE FROM work_order_service_requirements WHERE work_order_id = ?', (work_order_id,))
+
+    for idx, req in enumerate(requirements_list):
+        cursor.execute('''
+            INSERT INTO work_order_service_requirements
+            (work_order_id, requirement_index, service_require_type_desc, service_require_content, created_date)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (
+            work_order_id,
+            idx,
+            req.get('serviceRequireTypeDesc', ''),
+            req.get('serviceRequireContent', ''),
+            req.get('createdDate', '')
+        ))
+
+    conn.commit()
+    conn.close()
+    return True
+
+
+def delete_work_order_service_requirements(work_order_id):
+    """删除子信息阅读栏数据"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute('DELETE FROM work_order_service_requirements WHERE work_order_id = ?', (work_order_id,))
+
+    conn.commit()
+    conn.close()
+    return True
 
 
 # 初始化数据库
